@@ -19,8 +19,8 @@ PAR = crbm_inference(CRBM, PAR, params, 'pos');
 
 % ey gradient
 PAR = crbm_vishidprod(PAR, params, 'pos');
-PAR.poshidact = squeeze(sum(sum(PAR.hidprobs,1),2));
-PAR.posvisact = squeeze(sum(sum(PAR.vis,1),2));
+PAR.poshidact = squeeze(sum(sum(sum(PAR.hidprobs,1),2),3));
+PAR.posvisact = squeeze(sum(sum(sum(PAR.vis,1),2),3));
 
 % reconstruction
 PAR = crbm_reconstruct(CRBM, PAR, params, 'recon');
@@ -28,9 +28,9 @@ PAR = crbm_reconstruct(CRBM, PAR, params, 'recon');
 
 
 % reconstruction error, sparsity
-PAR.ferr = sum(sum(sum((PAR.vis - PAR.reconst).*(PAR.vis - PAR.reconst),1),2),3)/(opt.vissize*params.numvis);
-PAR.sparsity = sum(sum(sum(PAR.hidprobs,1),2),3)/(opt.hidsize*params.numhid);
-PAR.recon_err = squeeze(sum(sum((PAR.vis - PAR.reconst).*(PAR.vis - PAR.reconst),1),2))/opt.vissize;
+PAR.ferr = sum(sum(sum(sum((PAR.vis - PAR.reconst).*(PAR.vis - PAR.reconst),1),2),3),4)/(opt.vissize*params.numvis);
+PAR.sparsity = sum(sum(sum(sum(PAR.hidprobs,1),2),3),4)/(opt.hidsize*params.numhid);
+PAR.recon_err = squeeze(sum(sum(sum((PAR.vis - PAR.reconst).*(PAR.vis - PAR.reconst),1),2),3))/opt.vissize;
 
 %%% --- negative phase (CD-K) --- %%%
 for kcd = 1:params.kcd,
@@ -42,8 +42,8 @@ end
 
 % ey gradient
 PAR = crbm_vishidprod(PAR, params, 'neg');
-PAR.neghidact = squeeze(sum(sum(PAR.hidprobs,1),2));
-PAR.negvisact = squeeze(sum(sum(PAR.negdata,1),2));
+PAR.neghidact = squeeze(sum(sum(sum(PAR.hidprobs,1),2),3));
+PAR.negvisact = squeeze(sum(sum(sum(PAR.negdata,1),2),3));
 %%% ----------------------------- %%%
 
 % gradient of log-likelihood

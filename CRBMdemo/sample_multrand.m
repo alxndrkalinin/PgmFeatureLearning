@@ -4,18 +4,23 @@ if ~exist('spacing','var'),
 end
 
 % poshidexp is 3d array
-poshidprobs_mult = zeros(spacing^2+1, size(poshidexp,1)*size(poshidexp,2)*size(poshidexp,3)/spacing^2);
+% poshidprobs_mult = zeros(spacing^2 + 1, size(poshidexp, 1) * size(poshidexp, 2) * size(poshidexp, 3) / spacing^2);
+% poshidprobs_mult(end,:) = 0;
+
+poshidprobs_mult = zeros(spacing^3 + 1, size(poshidexp, 1) * size(poshidexp, 2) * size(poshidexp, 3) * size(poshidexp, 4) / spacing^3);
 poshidprobs_mult(end,:) = 0;
 
-for c = 1:spacing,
-    for r = 1:spacing,
-        temp = poshidexp(r:spacing:end, c:spacing:end, :);
-        poshidprobs_mult((c-1)*spacing+r,:) = temp(:);
+for d = 1:spacing,
+    for c = 1:spacing,
+        for r = 1:spacing,
+            temp = poshidexp(r:spacing:end, c:spacing:end, d:spacing:end, :);
+            poshidprobs_mult((d - 1) * 2 * spacing + (c - 1) * spacing + r, :) = temp(:);
+        end
     end
 end
 
 % substract from max exponent to make values numerically more stable
-poshidprobs_mult = bsxfun(@minus, poshidprobs_mult, max(poshidprobs_mult,[],1));
+poshidprobs_mult = bsxfun(@minus, poshidprobs_mult, max(poshidprobs_mult, [], 1));
 poshidprobs_mult = exp(poshidprobs_mult);
 
 [S1 P1] = multrand_col(poshidprobs_mult');
@@ -26,18 +31,27 @@ clear S1 P1
 % convert back to original sized matrix
 H = zeros(size(poshidexp));
 HP = zeros(size(poshidexp));
-for c = 1:spacing,
-    for r = 1:spacing,
-        H(r:spacing:end, c:spacing:end, :) = reshape(S((c-1)*spacing+r,:), [size(H,1)/spacing, size(H,2)/spacing, size(H,3)]);
-        HP(r:spacing:end, c:spacing:end, :) = reshape(P((c-1)*spacing+r,:), [size(H,1)/spacing, size(H,2)/spacing, size(H,3)]);
+for d = 1:spacing,
+    for c = 1:spacing,
+        for r = 1:spacing,
+            H(r:spacing:end, c:spacing:end, d:spacing:end, :) = ...
+                reshape(S((d - 1) * 2 * spacing + (c - 1) * spacing + r, :), ...
+                [size(H, 1) / spacing, size(H, 2) / spacing, size(H, 3) / spacing, size(H, 4)]);
+            
+            HP(r:spacing:end, c:spacing:end, d:spacing:end, :) = ...
+                reshape(P((d - 1) * 2 * spacing + (c - 1) * spacing + r, :), ...
+                [size(H, 1) / spacing, size(H, 2) / spacing, size(H, 3) / spacing, size(H, 4)]);
+        end
     end
 end
 
 if nargout >2
     Sc = sum(S(1:end-1,:));
     Pc = sum(P(1:end-1,:));
-    Hc = reshape(Sc, [size(poshidexp,1)/spacing,size(poshidexp,2)/spacing,size(poshidexp,3)]);
-    HPc = reshape(Pc, [size(poshidexp,1)/spacing,size(poshidexp,2)/spacing,size(poshidexp,3)]);
+    Hc = reshape(Sc, [size(poshidexp, 1) / spacing, size(poshidexp, 2) / spacing, ...
+        size(poshidexp, 3) / spacing, size(poshidexp, 4)]);
+    HPc = reshape(Pc, [size(poshidexp, 1) / spacing, size(poshidexp, 2) / spacing, ...
+        size(poshidexp, 3) / spacing, size(poshidexp, 4)]);
 end
 
 
@@ -47,7 +61,7 @@ function [S P] = multrand_col(P)
 % P is 2-d matrix: 2nd dimension is # of choices
 
 sumP = sum(P,2);
-P = bsxfun(@rdivide,P,sumP);
+P = bsxfun(@rdivide, P, sumP);
 
 cumP = cumsum(P,2);
 unifrnd = rand(size(P,1),1);

@@ -48,7 +48,7 @@ catch
     if ~exist('pretrain','dir'),
         mkdir('pretrain');
     end
-    save(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');
+%     save(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');
 end
 
 

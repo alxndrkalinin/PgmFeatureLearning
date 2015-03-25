@@ -23,7 +23,7 @@ elseif strcmp(opt,'neg'),
     end
 end
 
-PAR.hidprobs = 1/(params.sigma^2).*PAR.hidprobs;
+PAR.hidprobs = 1 / (params.sigma^2) .* PAR.hidprobs;
 [PAR.hidstates, PAR.hidprobs] = sample_multrand(PAR.hidprobs, params);
 
 return;

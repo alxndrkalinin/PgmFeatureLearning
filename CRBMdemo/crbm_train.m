@@ -188,7 +188,7 @@ for t = 1:params.maxiter,
     if params.verbose,
         fprintf('epoch %d: error=%.5g, sparsity=%.5g, sigma=%.5g, time=%.5g\n', t, double(error_history(t)), double(sparsity_history(t)), params.sigma, tE);
         if params.nlayer == 1,
-            display_network_nonsquare(reshape(CRBM.W,params.ws^2*size(CRBM.W,3),params.numhid));
+            display_network_nonsquare(reshape(CRBM.W,params.ws^3*size(CRBM.W,4),params.numhid));
         elseif params.nlayer == 2,
             display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
         end
@@ -207,7 +207,7 @@ for t = 1:params.maxiter,
         if params.showfig,
             figure(1);
             if params.nlayer == 1, 
-                display_network_nonsquare(reshape(CRBM.W,params.ws^2,params.numhid));
+                display_network_nonsquare(reshape(CRBM.W,params.ws^3,params.numhid));
             elseif params.nlayer == 2, 
                 display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
             end
@@ -235,7 +235,7 @@ end
 %% visualization
 figure(1);
 if params.nlayer == 1,
-    display_network_nonsquare(reshape(CRBM.W,params.ws^2*size(CRBM.W,3),params.numhid));
+    display_network_nonsquare(reshape(CRBM.W,params.ws^3*size(CRBM.W,4),params.numhid));
 elseif params.nlayer == 2,
     display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
 end
