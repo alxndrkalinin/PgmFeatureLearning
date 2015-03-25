@@ -14,11 +14,12 @@ end
 
 %%% --- set up hyper parameters --- %%%
 params = makeCRBMparams(params);
-params.numvis = size(X{1},3);
+% number of 3d images in stack (1)
+params.numvis = size(X{1},4);
 if isempty(params.batch_ws),
     params.batch_ws = inf;
     for i = 1:length(X),
-        params.batch_ws = min(params.batch_ws,min(size(X{i},1),size(X{i},2)));
+        params.batch_ws = min(params.batch_ws, min([size(X{i},1), size(X{i},2), size(X{i},3)]));
     end
 end
 params.batch_ws = params.batch_ws - rem(params.batch_ws - (params.ws + params.spacing - 1), params.spacing);
@@ -65,9 +66,10 @@ if params.optmminit,
 end
 
 if ~params.optmminit,
-    CRBM.W = 0.01*randn(params.ws, params.ws, params.numvis, params.numhid);
+%     CRBM.W = 0.01*randn(params.ws, params.ws, params.numvis, params.numhid);
+    CRBM.W = 0.01*randn(params.ws, params.ws, params.ws, params.numvis, params.numhid);
     CRBM.hbias = zeros(params.numhid, 1);
-    CRBM.vbias = zeros(params.numvis, 1);
+    CRBM.vbias = zeros(params.numvis, 1); % = 0
     if isfield(params,'sigma'),
         params.sigma_schedule = 1;
         if ~isfield(params,'sigma_stop'),
@@ -100,10 +102,17 @@ PAR.runningavg_prob = [];
 % other parameters
 opt.visrow = params.batch_ws;
 opt.viscol = params.batch_ws;
+% third dimension
+opt.visdepth = params.batch_ws;
+
 opt.hidrow = opt.visrow - params.ws + 1;
 opt.hidcol = opt.viscol - params.ws + 1;
-opt.vissize = opt.visrow*opt.viscol;
-opt.hidsize = opt.hidrow*opt.hidcol;
+% third dimension
+opt.hiddepth = opt.visdepth - params.ws + 1;
+
+opt.vissize = opt.visrow * opt.viscol * opt.visdepth;
+opt.hidsize = opt.hidrow * opt.hidcol * opt.hiddepth;
+
 
 % filename to save
 if isempty(params.fname_save),

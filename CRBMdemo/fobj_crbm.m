@@ -4,13 +4,15 @@ function [CRBM, PAR] = fobj_crbm(CRBM, PAR, params, opt)
 
 PAR.ferr = 0;
 PAR.sparsity = 0;
-PAR.recon_err = zeros(params.numvis,1);
+PAR.recon_err = zeros(params.numvis, 1);
 
 for c = 1:params.numvis,
-    CRBM.Wlr(:,:,:,c) = reshape(CRBM.W(end:-1:1, end:-1:1, c, :),[params.ws,params.ws,params.numhid]);
+    CRBM.Wlr(:, :, :, :, c) = reshape(CRBM.W(end:-1:1, end:-1:1, end:-1:1, c, :), ...
+        [params.ws, params.ws, params.ws, params.numhid]);
 end
-CRBM.vbiasmat = repmat(permute(CRBM.vbias,[2 3 1]),opt.visrow,opt.viscol);
-CRBM.hbiasmat = repmat(permute(CRBM.hbias,[2 3 1]),opt.hidrow,opt.hidcol);
+
+CRBM.vbiasmat = repmat(permute(CRBM.vbias, [2 3 4 1]), opt.visrow, opt.viscol, opt.visdepth);
+CRBM.hbiasmat = repmat(permute(CRBM.hbias, [2 3 4 1]), opt.hidrow, opt.hidcol, opt.hiddepth);
 
 %%% --- positive phase --- %%%
 PAR = crbm_inference(CRBM, PAR, params, 'pos');

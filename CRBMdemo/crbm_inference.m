@@ -11,14 +11,14 @@ if strcmp(opt,'pos'),
     %%% --- positive phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
-            PAR.hidprobs(:,:,b) = PAR.hidprobs(:,:,b) + conv2(PAR.vis(:,:,c), CRBM.Wlr(:,:,b,c), 'valid');
+            PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.vis(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
         end
     end
 elseif strcmp(opt,'neg'),
     %%% --- negative phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
-            PAR.hidprobs(:,:,b) = PAR.hidprobs(:,:,b) + conv2(PAR.negdata(:,:,c), CRBM.Wlr(:,:,b,c), 'valid');
+            PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.negdata(:,:,:,c), CRBM.Wlr(:,:,:,b,c), 'valid');
         end
     end
 end
