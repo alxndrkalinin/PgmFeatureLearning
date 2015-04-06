@@ -5,6 +5,11 @@ if ~exist('spacing','var') || isempty(spacing),
 end
 
 %%% load images
+
+
+load data/cells/data_41_cube.mat;
+% load data/cells/data_82_cube.mat;
+
 ws_pad = 0;
 % fpath = sprintf('data/%s', dataname);
 % flist = dir(sprintf('%s/*.jpg', fpath));
@@ -27,16 +32,15 @@ D = 20;
 %     idx = 1:length(flist);
 % end
 
-load data/cells/data_41_cube.mat;
-
 % for k = 1:length(idx),
-for k = 1:length(data41),
+for k = 1:length(data),
 %     imidx = idx(k);
 %     fprintf('[%d]', imidx);
 %     fname = sprintf('%s/%s', fpath, flist(imidx).name);
 %     im = imread(fname);
 
-    im = data41{k};
+%     im = data41{k};
+    im = data{k};
     
     %%% compute response
     [~, ~, ~, HPc] = crbm_v1_response(im, CRBM, params.sigma, spacing, imsize, D, ws_pad);

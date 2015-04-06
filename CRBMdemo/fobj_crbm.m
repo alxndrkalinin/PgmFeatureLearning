@@ -30,7 +30,8 @@ PAR = crbm_reconstruct(CRBM, PAR, params, 'recon');
 % reconstruction error, sparsity
 % imshow3D(PAR.vis);
 % figure;
-imshow3D(PAR.reconst);
+% imshow3D(PAR.reconst);
+PAR.reconst_images = [PAR.reconst_images PAR.reconst];
 PAR.ferr = sum(sum(sum(sum((PAR.vis - PAR.reconst).*(PAR.vis - PAR.reconst),1),2),3),4)/(opt.vissize*params.numvis);
 PAR.sparsity = sum(sum(sum(sum(PAR.hidprobs,1),2),3),4)/(opt.hidsize*params.numhid);
 PAR.recon_err = squeeze(sum(sum(sum((PAR.vis - PAR.reconst).*(PAR.vis - PAR.reconst),1),2),3))/opt.vissize;
@@ -42,6 +43,8 @@ for kcd = 1:params.kcd,
     % hidden unit inference
     PAR = crbm_inference(CRBM, PAR, params, 'neg');
 end
+
+PAR.reconst_images_neg = [PAR.reconst_images_neg PAR.negdata];
 
 % ey gradient
 PAR = crbm_vishidprod(PAR, params, 'neg');

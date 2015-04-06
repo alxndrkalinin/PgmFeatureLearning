@@ -123,6 +123,8 @@ fname_png = sprintf('%s/%s.png', params.savedir, params.fname_save);
 
 disp(params);
 
+PAR.reconst_images = {};
+PAR.reconst_images_neg = {};
 
 %%% --- train (real, binary)-binary convolutional RBM --- %%%
 

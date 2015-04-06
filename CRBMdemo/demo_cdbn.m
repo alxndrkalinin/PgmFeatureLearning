@@ -25,9 +25,11 @@ if ~exist('l2reg_V2','var'), l2reg_V2 = 0.02; end
 %% 1st layer (natural images)
 dataname = 'olshausen';
 fname_V1 = sprintf('crbm_V1_%s_b%02d_pb%g_pl%g_l2r%g_sp%d',dataname,numhid_V1,pbias_V1,plambda_V1,l2reg_V1,spacing_V1);
-try
-    load(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');    
-catch
+
+% try
+%     load(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');    
+% catch
+
 %     images = loadMNISTImages('train-images-idx3-ubyte');
 %     load data/olshausen_single.mat;
 %     load data.mat;
@@ -37,7 +39,8 @@ catch
 %     images = loadMNISTImages('train-images-idx3-ubyte');
 
     load data/cells/data_41_cube.mat;
-    X = {data41{1}};
+%     load data/cells/data_82_cube.mat;
+    X = {data{1:3}};
     
 %     img = data{1};
 %     img = img(1:64, 1:64, :);
@@ -52,7 +55,7 @@ catch
         mkdir('pretrain');
     end
     save(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');
-end
+% end
 
 
 %% 2nd layer (caltech 101)
@@ -64,7 +67,7 @@ H = compute_v1_response(objclass, CRBM, params, spacing, 60);
 %%% determine maximum input size
 batch_ws = inf;
 for i = 1:length(H),
-    cur_batch_ws = min(size(H{i},1),size(H{i},2),size(H{i},3));
+    cur_batch_ws = min([size(H{i},1),size(H{i},2),size(H{i},3)]);
     if cur_batch_ws >= 30,
         batch_ws = min(batch_ws,cur_batch_ws);
     end
