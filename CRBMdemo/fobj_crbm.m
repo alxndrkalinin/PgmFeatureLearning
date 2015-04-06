@@ -28,6 +28,9 @@ PAR = crbm_reconstruct(CRBM, PAR, params, 'recon');
 
 
 % reconstruction error, sparsity
+% imshow3D(PAR.vis);
+% figure;
+imshow3D(PAR.reconst);
 PAR.ferr = sum(sum(sum(sum((PAR.vis - PAR.reconst).*(PAR.vis - PAR.reconst),1),2),3),4)/(opt.vissize*params.numvis);
 PAR.sparsity = sum(sum(sum(sum(PAR.hidprobs,1),2),3),4)/(opt.hidsize*params.numhid);
 PAR.recon_err = squeeze(sum(sum(sum((PAR.vis - PAR.reconst).*(PAR.vis - PAR.reconst),1),2),3))/opt.vissize;

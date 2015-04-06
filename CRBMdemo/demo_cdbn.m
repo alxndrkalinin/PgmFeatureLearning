@@ -30,16 +30,19 @@ try
 catch
 %     images = loadMNISTImages('train-images-idx3-ubyte');
 %     load data/olshausen_single.mat;
-    load data.mat;
+%     load data.mat;
 %      load data/binaryalphadigs.mat;
 %      X = {dat{1}};
 %     X = images_all;
 %     images = loadMNISTImages('train-images-idx3-ubyte');
+
+    load data/cells/data_41_cube.mat;
+    X = {data41{1}};
     
-    img = data{1};
-    img = img(1:64, 1:64, :);
-    img = cast(img, 'double');
-    X = {img};
+%     img = data{1};
+%     img = img(1:64, 1:64, :);
+%     img = cast(img, 'double');
+%     X = {img};
     
     % train real-binary crbm
     [CRBM, params, CDBN] = crbm_train(X,struct('sigma',0.2,'verbose',1,'batchsize',100,'batch_ws',70,'epsilon',2e-2,'intype','real','nlayer',1,'dataSet',dataname,...
@@ -48,7 +51,7 @@ catch
     if ~exist('pretrain','dir'),
         mkdir('pretrain');
     end
-%     save(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');
+    save(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');
 end
 
 
@@ -61,17 +64,17 @@ H = compute_v1_response(objclass, CRBM, params, spacing, 60);
 %%% determine maximum input size
 batch_ws = inf;
 for i = 1:length(H),
-    cur_batch_ws = min(size(H{i},1),size(H{i},2));
+    cur_batch_ws = min(size(H{i},1),size(H{i},2),size(H{i},3));
     if cur_batch_ws >= 30,
         batch_ws = min(batch_ws,cur_batch_ws);
     end
 end
-batch_ws = min(batch_ws,50);
+batch_ws = min(batch_ws, 50);
 
 fname_V2 = sprintf('crbm_V2_%s_b%02d_pb%g_pl%g_l2r%g_sp%d_b%02d_pb%g_pl%g_l2r%g_sp%d',objclass,numhid_V1,pbias_V1,plambda_V1,l2reg_V1,CDBN{1}.params.spacing,numhid_V2,pbias_V2,plambda_V2,l2reg_V2,spacing_V2);
 % train crbm V2
 [CRBM, params, CDBN] = crbm_train(H,struct('batch_ws',batch_ws,'nlayer',2,'ws',12,'epsilon',0.01,'batchsize',100,'dataSet',objclass,...
-    'spacing',spacing_V2,'pbias',pbias_V2,'plambda',plambda_V2,'numhid',numhid_V2,'l2reg',l2reg_V2,'l1reg',1e-6,'maxiter',10,'savedir','results','verbose',1,'sigma',0.2,'sigma_stop',0.2,'eta_sparsity',0.01,'batchperiter',2), CDBN);
+    'spacing',spacing_V2,'pbias',pbias_V2,'plambda',plambda_V2,'numhid',numhid_V2,'l2reg',l2reg_V2,'l1reg',1e-6,'maxiter',1,'savedir','results','verbose',1,'sigma',0.2,'sigma_stop',0.2,'eta_sparsity',0.01,'batchperiter',2), CDBN);
 
 save(sprintf('pretrain/%s.mat',fname_V2),'CRBM','params','CDBN');
 

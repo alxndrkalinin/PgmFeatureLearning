@@ -14,6 +14,7 @@ CRBM.hbias = double(CRBM.hbias);
 switch class
     case 'Faces_easy',
     case 'car_side',
+    case 'cells'
 end
 
 resp = compute_v1_response_sub(class, CRBM, params, spacing, nimg);
