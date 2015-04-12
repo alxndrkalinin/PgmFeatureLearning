@@ -13,8 +13,14 @@ numhid = size(CRBM.W, 5);
 
 hidprobs = zeros(size(vis,1)-size(CRBM.W,1)+1, size(vis,2)-size(CRBM.W,2)+1, size(vis,3)-size(CRBM.W,3)+1, numhid);
 for b = 1:numhid,
-    for c = 1:numvis,        
-        hidprobs(:, :,:,b) = hidprobs(:,:,:,b) + convn(vis(:,:,:,c), CRBM.W(end:-1:1, end:-1:1, end:-1:1, c, b), 'valid');
+    for c = 1:numvis,
+        try
+            gpuVis = gpuArray(vis(:,:,:,c));
+            gpuW = gpuArray(CRBM.W(end:-1:1, end:-1:1, end:-1:1, c, b));
+            hidprobs(:, :,:,b) = hidprobs(:,:,:,b) + gather(convn(gpuVis, gpuW, 'valid'));g
+        catch
+            hidprobs(:, :,:,b) = hidprobs(:,:,:,b) + convn(vis(:,:,:,c), CRBM.W(end:-1:1, end:-1:1, end:-1:1, c, b), 'valid');
+        end
     end
     hidprobs(:,:,:,b) = hidprobs(:,:,:,b) + CRBM.hbias(b);
 end

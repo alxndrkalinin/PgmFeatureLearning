@@ -11,14 +11,26 @@ if strcmp(opt,'pos'),
     %%% --- positive phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
-            PAR.posprods(:,:,:,c,b) = convn(PAR.vis(:,:,:,c), PAR.hidprobs(selidx1, selidx2, selidx3, b), 'valid');
+            try
+                vis = gpuArray(PAR.vis(:,:,:,c));
+                hidprobs = gpuArray(PAR.hidprobs(selidx1, selidx2, selidx3, b));
+                PAR.posprods(:,:,:,c,b) = gather(convn(vis, hidprobs, 'valid'));
+            catch
+                PAR.posprods(:,:,:,c,b) = convn(PAR.vis(:,:,:,c), PAR.hidprobs(selidx1, selidx2, selidx3, b), 'valid');
+            end
         end
     end
 elseif strcmp(opt,'neg'),
     %%% --- negative phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
-            PAR.negprods(:,:,:,c,b) = convn(PAR.negdata(:,:,:,c), PAR.hidprobs(selidx1, selidx2, selidx3, b), 'valid');
+            try
+                negdata = gpuArray(PAR.negdata(:,:,:,c));
+                hidprobs = gpuArray(PAR.hidprobs(selidx1, selidx2, selidx3, b));
+                PAR.negprods(:,:,:,c,b) = gather(convn(negdata, hidprobs, 'valid'));
+            catch
+                PAR.negprods(:,:,:,c,b) = convn(PAR.negdata(:,:,:,c), PAR.hidprobs(selidx1, selidx2, selidx3, b), 'valid');
+            end
         end
     end
 end

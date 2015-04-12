@@ -60,16 +60,33 @@ return
 function [S P] = multrand_col(P)
 % P is 2-d matrix: 2nd dimension is # of choices
 
-sumP = sum(P,2);
-P = bsxfun(@rdivide, P, sumP);
+try
+    gpuP = gpuArray(P);
+    gpuSumP = sum(gpuP, 2);
+    gpuP = bsxfun(@rdivide, gpuP, gpuSumP);
 
-cumP = cumsum(P,2);
-unifrnd = rand(size(P,1),1);
-temp = bsxfun(@gt,cumP,unifrnd);
-Sindx = diff(temp,1,2);
-S = zeros(size(P));
-S(:,1) = 1-sum(Sindx,2);
-S(:,2:end) = Sindx;
+    gpuCumP = cumsum(gpuP, 2);
+    gpuUnifrnd = rand([size(P, 1), 1], 'gpuArray');
+    gpuTemp = bsxfun(@gt, gpuCumP, gpuUnifrnd);
+    gpuSindx = diff(gpuTemp, 1, 2);
+    gpuS = zeros(size(gpuP), 'gpuArray');
+    gpuS(:,1) = 1 - sum(gpuSindx, 2);
+    gpuS(:, 2:end) = gpuSindx;
+    
+    S = gather(gpuS);
+    P = gather(gpuP);
+catch
+    sumP = sum(P,2);
+    P = bsxfun(@rdivide, P, sumP);
+
+    cumP = cumsum(P,2);
+    unifrnd = rand(size(P,1),1);
+    temp = bsxfun(@gt,cumP,unifrnd);
+    Sindx = diff(temp,1,2);
+    S = zeros(size(P));
+    S(:,1) = 1-sum(Sindx,2);
+    S(:,2:end) = Sindx;
+end
 
 return;
 

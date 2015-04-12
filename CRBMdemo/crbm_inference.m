@@ -11,14 +11,28 @@ if strcmp(opt,'pos'),
     %%% --- positive phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
-            PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.vis(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
+            try
+                vis = gpuArray(PAR.vis(:,:,:,c));
+                Wlr = gpuArray(CRBM.Wlr(:,:,:, b,c));
+                gpuConv = convn(vis, Wlr, 'valid');
+                PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + gather(gpuConv);
+            catch
+                PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.vis(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
+            end
         end
     end
 elseif strcmp(opt,'neg'),
     %%% --- negative phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
-            PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.negdata(:,:,:,c), CRBM.Wlr(:,:,:,b,c), 'valid');
+            try
+                vis = gpuArray(PAR.negdata(:,:,:,c));
+                Wlr = gpuArray(CRBM.Wlr(:,:,:, b,c));
+                gpuConv = convn(vis, Wlr, 'valid');
+                PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + gather(gpuConv);
+            catch
+                PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.negdata(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
+            end
         end
     end
 end
