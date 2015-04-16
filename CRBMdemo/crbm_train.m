@@ -1,4 +1,4 @@
-function [CRBM, params ,CDBN] = crbm_train(X,params,CDBN)
+function [CRBM, params ,CDBN] = crbm_train(n,X,params,CDBN)
 %% convolutional RBM
 %   Ey: (1/std^2)*[v'v - v'Wh - b'h - c'v]
 
@@ -13,7 +13,13 @@ if ~exist('params','var'),
 end
 
 %%% --- set up hyper parameters --- %%%
-params = makeCRBMparams(params);
+if (n ==1)
+    params = makeCRBMparams(params);
+    params.numvis = size(X{1},4);
+else 
+    params = makeCRBMparams2(params);
+    params.numvis = size(X{1},4)*length(X);
+end
 % number of 3d images in stack (1)
 params.numvis = size(X{1},4);
 if isempty(params.batch_ws),
