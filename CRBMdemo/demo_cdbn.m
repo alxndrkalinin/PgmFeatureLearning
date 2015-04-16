@@ -30,22 +30,8 @@ fname_V1 = sprintf('crbm_V1_%s_b%02d_pb%g_pl%g_l2r%g_sp%d',dataname,numhid_V1,pb
 %     load(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');
 % catch
 
-%     images = loadMNISTImages('train-images-idx3-ubyte');
-%     load data/olshausen_single.mat;
-%     load data.mat;
-%      load data/binaryalphadigs.mat;
-%      X = {dat{1}};
-%     X = images_all;
-%     images = loadMNISTImages('train-images-idx3-ubyte');
-
 load data/cells/data_41_cube.mat;
-%     load data/cells/data_82_cube.mat;
 X = {data{1:3}};
-
-%     img = data{1};
-%     img = img(1:64, 1:64, :);
-%     img = cast(img, 'double');
-%     X = {img};
 
 % train real-binary crbm
 [CRBM, params, CDBN] = crbm_train(1,X,struct('sigma',0.2,'verbose',1,'batchsize',100,'batch_ws',70,'epsilon',2e-2,'intype','real','nlayer',1,'dataSet',dataname,...
@@ -58,11 +44,13 @@ save(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');
 % end
 
 
-%% 2nd layer (caltech 101)
+%% 2nd layer
 %%% compute first layer response
 addpath crbm_v1;
 spacing = CDBN{1}.params.spacing;
 H = compute_v1_response(objclass, CRBM, params, spacing);
+
+save H.mat H
 
 
 %%% determine maximum input size
@@ -86,5 +74,7 @@ addpath crbm_v1;
 spacing = CDBN{1}.params.spacing;
 
 H2 = compute_v2_response(objclass, CRBM, params, 2);
+
+save H2.mat H2
 
 

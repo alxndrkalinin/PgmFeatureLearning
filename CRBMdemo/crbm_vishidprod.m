@@ -12,9 +12,16 @@ if strcmp(opt,'pos'),
     for c = 1:params.numvis,
         for b = 1:params.numhid,
             try
-                vis = gpuArray(PAR.vis(:,:,:,c));
-                hidprobs = gpuArray(PAR.hidprobs(selidx1, selidx2, selidx3, b));
-                PAR.posprods(:,:,:,c,b) = gather(convn(vis, hidprobs, 'valid'));
+                if params.gpu ~= 0
+                    reset(params.gpu);
+                    vis = gpuArray(PAR.vis(:,:,:,c));
+                    hidprobs = gpuArray(PAR.hidprobs(selidx1, selidx2, selidx3, b));
+                    PAR.posprods(:,:,:,c,b) = gather(convn(vis, hidprobs, 'valid'));
+                    reset(params.gpu);
+                else
+                    msg = 'GPU is not available.';
+                    error(msg);
+                end
             catch
                 PAR.posprods(:,:,:,c,b) = convn(PAR.vis(:,:,:,c), PAR.hidprobs(selidx1, selidx2, selidx3, b), 'valid');
             end
@@ -25,9 +32,16 @@ elseif strcmp(opt,'neg'),
     for c = 1:params.numvis,
         for b = 1:params.numhid,
             try
-                negdata = gpuArray(PAR.negdata(:,:,:,c));
-                hidprobs = gpuArray(PAR.hidprobs(selidx1, selidx2, selidx3, b));
-                PAR.negprods(:,:,:,c,b) = gather(convn(negdata, hidprobs, 'valid'));
+                if params.gpu ~= 0
+                    reset(params.gpu);
+                    negdata = gpuArray(PAR.negdata(:,:,:,c));
+                    hidprobs = gpuArray(PAR.hidprobs(selidx1, selidx2, selidx3, b));
+                    PAR.negprods(:,:,:,c,b) = gather(convn(negdata, hidprobs, 'valid'));
+                    reset(params.gpu);
+                else
+                    msg = 'GPU is not available.';
+                    error(msg);
+                end
             catch
                 PAR.negprods(:,:,:,c,b) = convn(PAR.negdata(:,:,:,c), PAR.hidprobs(selidx1, selidx2, selidx3, b), 'valid');
             end

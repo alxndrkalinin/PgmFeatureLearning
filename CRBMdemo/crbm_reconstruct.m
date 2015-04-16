@@ -12,10 +12,17 @@ if strcmp(opt,'recon'),
     for b = 1:params.numhid,
         for c = 1:params.numvis,
             try
-                hidprobs = gpuArray(PAR.hidprobs(:,:,:,b));
-                W = gpuArray(CRBM.W(:,:,:,c,b));
-                gpuConv = convn(hidprobs, W, 'full');
-                PAR.reconst(:,:,:,c) = PAR.reconst(:,:,:,c) + gather(gpuConv);
+                if params.gpu ~= 0
+                    reset(params.gpu);
+                    hidprobs = gpuArray(PAR.hidprobs(:,:,:,b));
+                    W = gpuArray(CRBM.W(:,:,:,c,b));
+                    gpuConv = convn(hidprobs, W, 'full');
+                    PAR.reconst(:,:,:,c) = PAR.reconst(:,:,:,c) + gather(gpuConv);
+                    reset(params.gpu);
+                else
+                    msg = 'GPU is not available.';
+                    error(msg);
+                end
             catch
                 PAR.reconst(:,:,:,c) = PAR.reconst(:,:,:,c) + convn(PAR.hidprobs(:,:,:,b), CRBM.W(:,:,:,c,b), 'full');
             end
@@ -32,10 +39,17 @@ elseif strcmp(opt,'neg'),
     for b = 1:params.numhid,
         for c = 1:params.numvis,
             try
-                hidstates = gpuArray(PAR.hidstates(:,:,:,b));
-                W = gpuArray(CRBM.W(:,:,:,c,b));
-                gpuConv = convn(hidstates, W, 'full');
-                PAR.negdata(:,:,:,c) = PAR.negdata(:,:,:,c) + gather(gpuConv);
+                if params.gpu ~= 0
+                    reset(params.gpu);
+                    hidstates = gpuArray(PAR.hidstates(:,:,:,b));
+                    W = gpuArray(CRBM.W(:,:,:,c,b));
+                    gpuConv = convn(hidstates, W, 'full');
+                    PAR.negdata(:,:,:,c) = PAR.negdata(:,:,:,c) + gather(gpuConv);
+                    reset(params.gpu);
+                else
+                    msg = 'GPU is not available.';
+                    error(msg);
+                end
             catch
                 PAR.negdata(:,:,:,c) = PAR.negdata(:,:,:,c) + convn(PAR.hidstates(:,:,:,b), CRBM.W(:,:,:,c,b), 'full');
             end

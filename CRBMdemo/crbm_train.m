@@ -13,15 +13,24 @@ if ~exist('params','var'),
 end
 
 %%% --- set up hyper parameters --- %%%
-if (n ==1)
+if n == 1
     params = makeCRBMparams(params);
-    params.numvis = size(X{1},4);
 else 
     params = makeCRBMparams2(params);
-    params.numvis = size(X{1},4)*length(X);
 end
+
+% GPU mode
+try
+    g = gpuDevice(1);
+    reset(g);
+    params.gpu = g;
+catch
+    params.gpu = 0;
+end
+
 % number of 3d images in stack (1)
 params.numvis = size(X{1},4);
+
 if isempty(params.batch_ws),
     params.batch_ws = inf;
     for i = 1:length(X),

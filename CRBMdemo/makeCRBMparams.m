@@ -33,6 +33,8 @@ ref_params.nlayer = 1;
 ref_params.showfig = 0;
 ref_params.spacing = 2;
 ref_params.eta_sparsity = 0;
+% use gpu for convn
+ref_params.gpu = 1;
 
 % new parameters
 new_params = struct;

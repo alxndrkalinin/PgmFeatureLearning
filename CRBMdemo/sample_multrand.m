@@ -61,20 +61,27 @@ function [S P] = multrand_col(P)
 % P is 2-d matrix: 2nd dimension is # of choices
 
 try
-    gpuP = gpuArray(P);
-    gpuSumP = sum(gpuP, 2);
-    gpuP = bsxfun(@rdivide, gpuP, gpuSumP);
+    if params.gpu ~= 0
+        reset(params.gpu);
+        gpuP = gpuArray(P);
+        gpuSumP = sum(gpuP, 2);
+        gpuP = bsxfun(@rdivide, gpuP, gpuSumP);
 
-    gpuCumP = cumsum(gpuP, 2);
-    gpuUnifrnd = rand([size(P, 1), 1], 'gpuArray');
-    gpuTemp = bsxfun(@gt, gpuCumP, gpuUnifrnd);
-    gpuSindx = diff(gpuTemp, 1, 2);
-    gpuS = zeros(size(gpuP), 'gpuArray');
-    gpuS(:,1) = 1 - sum(gpuSindx, 2);
-    gpuS(:, 2:end) = gpuSindx;
-    
-    S = gather(gpuS);
-    P = gather(gpuP);
+        gpuCumP = cumsum(gpuP, 2);
+        gpuUnifrnd = rand([size(P, 1), 1], 'gpuArray');
+        gpuTemp = bsxfun(@gt, gpuCumP, gpuUnifrnd);
+        gpuSindx = diff(gpuTemp, 1, 2);
+        gpuS = zeros(size(gpuP), 'gpuArray');
+        gpuS(:,1) = 1 - sum(gpuSindx, 2);
+        gpuS(:, 2:end) = gpuSindx;
+
+        S = gather(gpuS);
+        P = gather(gpuP);
+        reset(params.gpu);
+    else
+        msg = 'GPU is not available.';
+        error(msg);
+    end
 catch
     sumP = sum(P,2);
     P = bsxfun(@rdivide, P, sumP);

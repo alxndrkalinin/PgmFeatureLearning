@@ -12,10 +12,17 @@ if strcmp(opt,'pos'),
     for c = 1:params.numvis,
         for b = 1:params.numhid,
             try
-                vis = gpuArray(PAR.vis(:,:,:,c));
-                Wlr = gpuArray(CRBM.Wlr(:,:,:, b,c));
-                gpuConv = convn(vis, Wlr, 'valid');
-                PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + gather(gpuConv);
+                if params.gpu ~= 0
+                    reset(params.gpu);
+                    vis = gpuArray(PAR.vis(:,:,:,c));
+                    Wlr = gpuArray(CRBM.Wlr(:,:,:, b,c));
+                    gpuConv = convn(vis, Wlr, 'valid');
+                    PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + gather(gpuConv);
+                    reset(params.gpu);
+                else
+                    msg = 'GPU is not available.';
+                    error(msg);
+                end
             catch
                 PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.vis(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
             end
@@ -26,10 +33,17 @@ elseif strcmp(opt,'neg'),
     for c = 1:params.numvis,
         for b = 1:params.numhid,
             try
-                vis = gpuArray(PAR.negdata(:,:,:,c));
-                Wlr = gpuArray(CRBM.Wlr(:,:,:, b,c));
-                gpuConv = convn(vis, Wlr, 'valid');
-                PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + gather(gpuConv);
+                if params.gpu ~= 0
+                    reset(params.gpu);
+                    vis = gpuArray(PAR.negdata(:,:,:,c));
+                    Wlr = gpuArray(CRBM.Wlr(:,:,:, b,c));
+                    gpuConv = convn(vis, Wlr, 'valid');
+                    PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + gather(gpuConv);
+                    reset(params.gpu);
+                else
+                    msg = 'GPU is not available.';
+                    error(msg);
+                end
             catch
                 PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.negdata(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
             end
