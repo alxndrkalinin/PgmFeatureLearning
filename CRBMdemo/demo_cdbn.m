@@ -30,8 +30,9 @@ fname_V1 = sprintf('crbm_V1_%s_b%02d_pb%g_pl%g_l2r%g_sp%d',dataname,numhid_V1,pb
 %     load(sprintf('pretrain/%s.mat',fname_V1),'CRBM','params','CDBN');
 % catch
 
-load data/cells/data_41_cube.mat;
-X = {data{1:3}};
+load data/cells/class_1_59_size100.mat;
+load data/cells/class_2_59_size100.mat;
+X = [class1_data100 class2_data100];
 
 % train real-binary crbm
 [CRBM, params, CDBN] = crbm_train(1,X,struct('sigma',0.2,'verbose',1,'batchsize',100,'batch_ws',70,'epsilon',2e-2,'intype','real','nlayer',1,'dataSet',dataname,...

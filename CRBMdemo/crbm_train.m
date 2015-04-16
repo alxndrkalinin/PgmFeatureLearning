@@ -20,12 +20,14 @@ else
 end
 
 % GPU mode
-try
-    g = gpuDevice(1);
-    reset(g);
-    params.gpu = g;
-catch
-    params.gpu = 0;
+if params.gpu == 1
+    try
+        g = gpuDevice(1);
+        reset(g);
+        params.gpu = g;
+    catch
+        params.gpu = 0;
+    end
 end
 
 % number of 3d images in stack (1)

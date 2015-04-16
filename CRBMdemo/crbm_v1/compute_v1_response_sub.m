@@ -5,7 +5,9 @@ if ~exist('spacing','var') || isempty(spacing),
 end
 
 %%% load images
-load data/cells/data_41_cube.mat;
+load data/cells/class_1_59_size100.mat;
+load data/cells/class_2_59_size100.mat;
+data = [class1_data100 class2_data100];
 
 ws_pad = 0;
 
