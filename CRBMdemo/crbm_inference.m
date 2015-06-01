@@ -7,51 +7,47 @@ function PAR = crbm_inference(CRBM, PAR, params, opt)
 if ~exist('opt','var'), opt = 'pos'; end
 
 PAR.hidprobs = CRBM.hbiasmat;
-if strcmp(opt,'pos'),
+
+% transfer data to GPU
+if params.gpu ~= 0
+    PAR.hidprobs = gpuArray(PAR.hidprobs);
+    CRBM.Wlr = gpuArray(CRBM.Wlr);
+    if strcmp(opt, 'pos')
+        PAR.vis = gpuArray(PAR.vis);
+    elseif strcmp(opt, 'neg')
+        PAR.negdata = gpuArray(PAR.negdata);
+    end
+end
+
+if strcmp(opt, 'pos'),
     %%% --- positive phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
-            try
-                if params.gpu ~= 0
-                    reset(params.gpu);
-                    vis = gpuArray(PAR.vis(:,:,:,c));
-                    Wlr = gpuArray(CRBM.Wlr(:,:,:, b,c));
-                    gpuConv = convn(vis, Wlr, 'valid');
-                    PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + gather(gpuConv);
-                    reset(params.gpu);
-                else
-                    msg = 'GPU is not available.';
-                    error(msg);
-                end
-            catch
-                PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.vis(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
-            end
+            PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.vis(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
         end
     end
-elseif strcmp(opt,'neg'),
+elseif strcmp(opt, 'neg'),
     %%% --- negative phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
-            try
-                if params.gpu ~= 0
-                    reset(params.gpu);
-                    vis = gpuArray(PAR.negdata(:,:,:,c));
-                    Wlr = gpuArray(CRBM.Wlr(:,:,:, b,c));
-                    gpuConv = convn(vis, Wlr, 'valid');
-                    PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + gather(gpuConv);
-                    reset(params.gpu);
-                else
-                    msg = 'GPU is not available.';
-                    error(msg);
-                end
-            catch
-                PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.negdata(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
-            end
+            PAR.hidprobs(:,:,:,b) = PAR.hidprobs(:,:,:,b) + convn(PAR.negdata(:,:,:,c), CRBM.Wlr(:,:,:, b,c), 'valid');
         end
     end
 end
 
 PAR.hidprobs = 1 / (params.sigma^2) .* PAR.hidprobs;
+
+% gather data from GPU
+if params.gpu ~= 0
+    PAR.hidprobs = gather(PAR.hidprobs);
+    CRBM.Wlr = gather(CRBM.Wlr);
+    if strcmp(opt, 'pos')
+        PAR.vis = gather(PAR.vis);
+    elseif strcmp(opt, 'neg')
+        PAR.negdata = gather(PAR.negdata);
+    end
+end
+
 [PAR.hidstates, PAR.hidprobs] = sample_multrand(PAR.hidprobs, params);
 
 return;
