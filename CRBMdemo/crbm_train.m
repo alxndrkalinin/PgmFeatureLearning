@@ -36,10 +36,13 @@ params.numvis = size(X{1},4);
 if isempty(params.batch_ws),
     params.batch_ws = inf;
     for i = 1:length(X),
-        params.batch_ws = min(params.batch_ws, min([size(X{i},1), size(X{i},2), size(X{i},3)]));
+        params.batch_ws = min(params.batch_ws, min([size(X{i},1), ...
+            size(X{i},2), size(X{i},3)]));
     end
 end
-params.batch_ws = params.batch_ws - rem(params.batch_ws - (params.ws + params.spacing - 1), params.spacing);
+params.batch_ws = params.batch_ws - rem(params.batch_ws - ...
+    (params.ws + params.spacing - 1), params.spacing);
+
 if isempty(params.batchsize),
     params.batchsize = length(X);
 end
@@ -59,8 +62,8 @@ finalmomentum    = 0.9;
 
 
 %%% --- initialize model parameters --- %%%
-randn('state',0);
-rand('state',0);
+randn('state', 0);
+rand('state', 0);
 
 % initialize crbm weights
 if params.optmminit,
@@ -84,9 +87,11 @@ end
 
 if ~params.optmminit,
 %     CRBM.W = 0.01*randn(params.ws, params.ws, params.numvis, params.numhid);
-    CRBM.W = 0.01*randn(params.ws, params.ws, params.ws, params.numvis, params.numhid);
-    CRBM.hbias = zeros(params.numhid, 1);
-    CRBM.vbias = zeros(params.numvis, 1); % = 0
+    CRBM.W = 0.01*randn(params.ws, params.ws, params.ws, ...
+        params.numvis, params.numhid, 'single');
+    
+    CRBM.hbias = zeros(params.numhid, 1, 'single');
+    CRBM.vbias = zeros(params.numvis, 1, 'single'); % = 0
     if isfield(params,'sigma'),
         params.sigma_schedule = 1;
         if ~isfield(params,'sigma_stop'),
@@ -103,17 +108,17 @@ end
 
 %%% --- other variables --- %%%
 % intermediate variables during training
-PAR.Winc = zeros(size(CRBM.W));
-PAR.hbiasinc = zeros(size(CRBM.hbias));
-PAR.vbiasinc = zeros(size(CRBM.vbias));
+PAR.Winc = zeros(size(CRBM.W), 'single');
+PAR.hbiasinc = zeros(size(CRBM.hbias), 'single');
+PAR.vbiasinc = zeros(size(CRBM.vbias), 'single');
 
 params.maxiter = params.maxiter;
 
 % monitoring variables
-error_history = zeros(params.maxiter,1);
-sparsity_history = zeros(params.maxiter,1);
-sigma_history = zeros(params.maxiter,1);
-error_for_sigma_history = zeros(params.maxiter,1);
+error_history = zeros(params.maxiter,1, 'single');
+sparsity_history = zeros(params.maxiter,1, 'single');
+sigma_history = zeros(params.maxiter,1, 'single');
+error_for_sigma_history = zeros(params.maxiter,1, 'single');
 PAR.runningavg_prob = [];
 
 % other parameters
@@ -147,9 +152,9 @@ PAR.reconst_images_neg = {};
 
 t20S = tic;
 for t = 1:params.maxiter,
-    recon_err_epoch = zeros(params.batchsize,1);
-    sparsity_epoch = zeros(params.batchsize,1);
-    recon_err_for_sigma_epoch = zeros(params.numvis,1);
+    recon_err_epoch = zeros(params.batchsize,1, 'single');
+    sparsity_epoch = zeros(params.batchsize,1, 'single');
+    recon_err_for_sigma_epoch = zeros(params.numvis,1, 'single');
     
     epsilon = params.epsilon/(1+params.epsdecay*t);
     randidx = randsample(length(X),params.batchsize,length(X) < params.batchsize);
@@ -197,39 +202,40 @@ for t = 1:params.maxiter,
             end
         end
     end
-    error_history(t) = double(mean(recon_err_epoch));
-    sparsity_history(t) = double(mean(sparsity_epoch));
-    sigma_history(t) = double(params.sigma);
+    error_history(t) = single(mean(recon_err_epoch));
+    sparsity_history(t) = single(mean(sparsity_epoch));
+    sigma_history(t) = single(params.sigma);
     sigma_recon = sqrt(mean(recon_err_for_sigma_epoch/b));
     error_for_sigma_history(t) = sigma_recon;
     
     tE = toc(tS);
     if params.verbose,
-        fprintf('epoch %d: error=%.5g, sparsity=%.5g, sigma=%.5g, time=%.5g\n', t, double(error_history(t)), double(sparsity_history(t)), params.sigma, tE);
-        if params.nlayer == 1,
-            display_network_nonsquare(reshape(CRBM.W,params.ws^3*size(CRBM.W,4),params.numhid));
-        elseif params.nlayer == 2,
+        fprintf('epoch %d: error=%.5g, sparsity=%.5g, sigma=%.5g, time=%.5g\n', ...
+            t, single(error_history(t)), single(sparsity_history(t)), params.sigma, tE);
+%         if params.nlayer == 1,
+%             display_network_nonsquare(reshape(CRBM.W, params.ws^3 * size(CRBM.W,4), params.numhid));
+%         elseif params.nlayer == 2,
 %             display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
-        end
+%         end
     end
     
     %%% update CDBN
-    CDBN{params.nlayer}.W = double(CRBM.W);
-    CDBN{params.nlayer}.hbias = double(CRBM.hbias);
-    CDBN{params.nlayer}.vbias = double(CRBM.vbias);
+    CDBN{params.nlayer}.W = single(CRBM.W);
+    CDBN{params.nlayer}.hbias = single(CRBM.hbias);
+    CDBN{params.nlayer}.vbias = single(CRBM.vbias);
     CDBN{params.nlayer}.params = params;
     
     if mod(t, 20) == 0,
         t20E = toc(t20S);
-        fprintf('epoch %d: error=%.5g, sparsity=%.5g, sigma=%.5g, time=%.5g\n', t, double(error_history(t)), double(sparsity_history(t)), params.sigma, t20E);
+        fprintf('epoch %d: error=%.5g, sparsity=%.5g, sigma=%.5g, time=%.5g\n', t, single(error_history(t)), single(sparsity_history(t)), params.sigma, t20E);
         t20S = tic;
         if params.showfig,
-            figure(1);
-            if params.nlayer == 1, 
-                display_network_nonsquare(reshape(CRBM.W,params.ws^3,params.numhid));
-            elseif params.nlayer == 2, 
+%             figure(1);
+%             if params.nlayer == 1, 
+%                 display_network_nonsquare(reshape(CRBM.W,params.ws^3,params.numhid));
+%             elseif params.nlayer == 2, 
 %                 display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
-            end
+%             end
             figure(2),
             subplot(2,1,1), plot(error_history(1:t)); title('reconstruction error');
             subplot(2,1,2), plot(sparsity_history(1:t)); title('sparsity');
@@ -239,15 +245,17 @@ for t = 1:params.maxiter,
     if strcmp(params.intype,'real'),
         if params.sigma_schedule,
             if params.sigma > params.sigma_stop,
-                params.sigma = params.sigma*0.99;
+                params.sigma = params.sigma * 0.99;
             end
         else
-            params.sigma = (1-params.eta_sigma)*params.sigma + params.eta_sigma*sqrt(sigma_recon);
+            params.sigma = (1 - params.eta_sigma) * params.sigma + ...
+                params.eta_sigma * sqrt(sigma_recon);
         end
     end
     
     % save parameters
-    save_vars(fname_mat, CRBM, CDBN, params, error_history, sparsity_history, PAR.reconst_images);
+    save_vars(fname_mat, CRBM, CDBN, params, error_history, ...
+        sparsity_history, PAR.reconst_images);
 %     save_visualization(CRBM, CDBN, params, t);
 end
 
@@ -270,9 +278,9 @@ return;
 
 function CRBM = save_vars(fname_mat,CRBM,CDBN,params,error_history,sparsity_history, reconst_images)
 
-CRBM.W = double(CRBM.W);
-CRBM.hbias = double(CRBM.hbias);
-CRBM.vbias = double(CRBM.vbias);
+CRBM.W = single(CRBM.W);
+CRBM.hbias = single(CRBM.hbias);
+CRBM.vbias = single(CRBM.vbias);
 
 CRBM = rmfield(CRBM,'Wlr');
 CRBM = rmfield(CRBM,'vbiasmat');
@@ -281,22 +289,22 @@ CRBM = rmfield(CRBM,'hbiasmat');
 save(fname_mat,'CRBM','CDBN','params','error_history','sparsity_history', 'reconst_images');
 return;
 
-function save_visualization(CRBM, CDBN, params, t)
-if ~exist('visualization','dir'),
-    mkdir('visualization');
-end
-if ~exist(sprintf('visualization/%s',params.fname_save),'dir'),
-    mkdir(sprintf('visualization/%s',params.fname_save));
-end
-
-fig = figure;
-fig_save = sprintf('visualization/%s/%04d.jpg',params.fname_save,t);
-if params.nlayer == 1,
-    display_network_nonsquare(reshape(CRBM.W,params.ws^2,params.numhid));
-elseif params.nlayer == 2,
-%     display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
-end
-print(fig,'-djpeg',fig_save);
-close(fig);
-
-return;
+% function save_visualization(CRBM, CDBN, params, t)
+% if ~exist('visualization','dir'),
+%     mkdir('visualization');
+% end
+% if ~exist(sprintf('visualization/%s',params.fname_save),'dir'),
+%     mkdir(sprintf('visualization/%s',params.fname_save));
+% end
+% 
+% fig = figure;
+% fig_save = sprintf('visualization/%s/%04d.jpg',params.fname_save,t);
+% if params.nlayer == 1,
+%     display_network_nonsquare(reshape(CRBM.W,params.ws^2,params.numhid));
+% elseif params.nlayer == 2,
+% %     display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
+% end
+% print(fig,'-djpeg',fig_save);
+% close(fig);
+% 
+% return;

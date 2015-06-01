@@ -4,7 +4,7 @@ function [CRBM, PAR] = fobj_crbm(CRBM, PAR, params, opt)
 
 PAR.ferr = 0;
 PAR.sparsity = 0;
-PAR.recon_err = zeros(params.numvis, 1);
+PAR.recon_err = zeros(params.numvis, 1, 'single');
 
 for c = 1:params.numvis,
     CRBM.Wlr(:, :, :, :, c) = reshape(CRBM.W(end:-1:1, end:-1:1, end:-1:1, c, :), ...
