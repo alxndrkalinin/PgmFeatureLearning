@@ -2,3 +2,4 @@ CRBMdemo/results/*
 CRBMdemo/pretrain/*
 .DS_Store
 CRBMdemo/.DS_Store
+./settings*

@@ -209,7 +209,7 @@ for t = 1:params.maxiter,
         if params.nlayer == 1,
             display_network_nonsquare(reshape(CRBM.W,params.ws^3*size(CRBM.W,4),params.numhid));
         elseif params.nlayer == 2,
-            display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
+%             display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
         end
     end
     
@@ -228,7 +228,7 @@ for t = 1:params.maxiter,
             if params.nlayer == 1, 
                 display_network_nonsquare(reshape(CRBM.W,params.ws^3,params.numhid));
             elseif params.nlayer == 2, 
-                display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
+%                 display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
             end
             figure(2),
             subplot(2,1,1), plot(error_history(1:t)); title('reconstruction error');
@@ -247,7 +247,7 @@ for t = 1:params.maxiter,
     end
     
     % save parameters
-    save_vars(fname_mat, CRBM, CDBN, params, error_history, sparsity_history);
+    save_vars(fname_mat, CRBM, CDBN, params, error_history, sparsity_history, PAR.reconst_images);
 %     save_visualization(CRBM, CDBN, params, t);
 end
 
@@ -256,7 +256,7 @@ figure(1);
 if params.nlayer == 1,
     display_network_nonsquare(reshape(CRBM.W,params.ws^3*size(CRBM.W,4),params.numhid));
 elseif params.nlayer == 2,
-    display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
+%     display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
 end
 saveas(gcf, fname_png);
 
@@ -264,11 +264,11 @@ figure(2),
 subplot(2,1,1), plot(error_history(1:t)); title('reconstruction error');
 subplot(2,1,2), plot(sparsity_history(1:t)); title('sparsity');
 
-CRBM = save_vars(fname_mat,CRBM,CDBN,params,error_history,sparsity_history);
+CRBM = save_vars(fname_mat,CRBM,CDBN,params,error_history,sparsity_history, PAR.reconst_images);
 
 return;
 
-function CRBM = save_vars(fname_mat,CRBM,CDBN,params,error_history,sparsity_history)
+function CRBM = save_vars(fname_mat,CRBM,CDBN,params,error_history,sparsity_history, reconst_images)
 
 CRBM.W = double(CRBM.W);
 CRBM.hbias = double(CRBM.hbias);
@@ -278,7 +278,7 @@ CRBM = rmfield(CRBM,'Wlr');
 CRBM = rmfield(CRBM,'vbiasmat');
 CRBM = rmfield(CRBM,'hbiasmat');
 
-save(fname_mat,'CRBM','CDBN','params','error_history','sparsity_history');
+save(fname_mat,'CRBM','CDBN','params','error_history','sparsity_history', 'reconst_images');
 return;
 
 function save_visualization(CRBM, CDBN, params, t)
@@ -294,7 +294,7 @@ fig_save = sprintf('visualization/%s/%04d.jpg',params.fname_save,t);
 if params.nlayer == 1,
     display_network_nonsquare(reshape(CRBM.W,params.ws^2,params.numhid));
 elseif params.nlayer == 2,
-    display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
+%     display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
 end
 print(fig,'-djpeg',fig_save);
 close(fig);
