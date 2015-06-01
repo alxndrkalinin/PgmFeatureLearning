@@ -9,14 +9,10 @@ if params.gpu ~= 0
     poshidprobs_mult = zeros(spacing^3 + 1, size(poshidexp, 1) * ...
         size(poshidexp, 2) * size(poshidexp, 3) * ...
         size(poshidexp, 4) / spacing^3, 'single', 'gpuArray');
-    H = zeros(size(poshidexp), 'single', 'gpuArray');
-    HP = zeros(size(poshidexp), 'single', 'gpuArray');
 else
     poshidprobs_mult = zeros(spacing^3 + 1, size(poshidexp, 1) * ...
     size(poshidexp, 2) * size(poshidexp, 3) * ...
     size(poshidexp, 4) / spacing^3, 'single');
-    H = zeros(size(poshidexp), 'single');
-    HP = zeros(size(poshidexp), 'single');
 end
 
 poshidprobs_mult(end,:) = 0;
@@ -29,6 +25,7 @@ for d = 1:spacing,
         end
     end
 end
+clear temp;
 
 % substract from max exponent to make values numerically more stable
 poshidprobs_mult = bsxfun(@minus, poshidprobs_mult, max(poshidprobs_mult, [], 1));
@@ -37,12 +34,19 @@ poshidprobs_mult = poshidprobs_mult';
 
 sumP = sum(poshidprobs_mult, 2);
 P = bsxfun(@rdivide, poshidprobs_mult, sumP);
-clear poshidprobs_mult;
+clear poshidprobs_mult sumP;
 
 cumP = cumsum(P, 2);
-unifrnd = rand(size(P,1), 1, 'single');
+if params.gpu ~= 0
+    unifrnd = rand(size(P,1), 1, 'single', 'gpuArray');
+else
+    unifrnd = rand(size(P,1), 1, 'single');
+end
 tmp = bsxfun(@gt, cumP, unifrnd);
+clear cumP unifrnd;
+
 Sindx = diff(tmp, 1, 2);
+clear tmp;
 
 if params.gpu ~= 0
     S = zeros(size(P), 'single', 'gpuArray');
@@ -51,9 +55,19 @@ else
 end
 S(:,1) = 1 - sum(Sindx, 2);
 S(:,2:end) = Sindx;
+clear Sindx;
 
 S = S';
 P = P';
+
+% transfer data to GPU and pre-allocate
+if params.gpu ~= 0
+    H = zeros(size(poshidexp), 'single', 'gpuArray');
+    HP = zeros(size(poshidexp), 'single', 'gpuArray');
+else
+    H = zeros(size(poshidexp), 'single');
+    HP = zeros(size(poshidexp), 'single');
+end
 
 % convert back to original sized matrix
 for d = 1:spacing,
@@ -70,24 +84,32 @@ for d = 1:spacing,
     end
 end
 
-if nargout >2
-    Sc = sum(S(1:end-1,:));
-    Pc = sum(P(1:end-1,:));
-    Hc = reshape(Sc, [size(poshidexp, 1) / spacing, size(poshidexp, 2) / spacing, ...
-        size(poshidexp, 3) / spacing, size(poshidexp, 4)]);
-    HPc = reshape(Pc, [size(poshidexp, 1) / spacing, size(poshidexp, 2) / spacing, ...
-        size(poshidexp, 3) / spacing, size(poshidexp, 4)]); 
-end
-
 % gather data from GPU
 if params.gpu ~= 0
     H = gather(H);
     HP = gather(HP);
-    if nargout >2
-        Hc = gather(Hc);
-        HPc = gather(HPc);
+end
+
+if nargout >2
+    Sc = sum(S(1:end-1,:));
+    Pc = sum(P(1:end-1,:));
+    clear S P;
+    
+    Hc = reshape(Sc, [size(poshidexp, 1) / spacing, size(poshidexp, 2) / spacing, ...
+        size(poshidexp, 3) / spacing, size(poshidexp, 4)]);
+    HPc = reshape(Pc, [size(poshidexp, 1) / spacing, size(poshidexp, 2) / spacing, ...
+        size(poshidexp, 3) / spacing, size(poshidexp, 4)]); 
+    
+    % gather data from GPU
+    if params.gpu ~= 0
+        if nargout >2
+            Hc = gather(Hc);
+            HPc = gather(HPc);
+        end
     end
 end
+
+clear poshidexp;
 
 return
 
