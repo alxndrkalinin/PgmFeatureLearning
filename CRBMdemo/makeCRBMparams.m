@@ -22,7 +22,7 @@ ref_params.fname_save = [];
 ref_params.intype = 'binary';
 ref_params.sptype = 'approx';
 ref_params.dataset = '';
-ref_params.maxiter = 3;
+ref_params.maxiter = 10;
 % target sparsity level
 ref_params.eta_sparsity = 0;
 ref_params.eta_sigma = 0.01;
@@ -34,7 +34,7 @@ ref_params.showfig = 0;
 ref_params.spacing = 2;
 ref_params.eta_sparsity = 0;
 % use gpu for convn
-ref_params.gpu = 0;
+ref_params.gpu = 1;
 
 % new parameters
 new_params = struct;

@@ -229,17 +229,17 @@ for t = 1:params.maxiter,
         t20E = toc(t20S);
         fprintf('epoch %d: error=%.5g, sparsity=%.5g, sigma=%.5g, time=%.5g\n', t, single(error_history(t)), single(sparsity_history(t)), params.sigma, t20E);
         t20S = tic;
-        if params.showfig,
+%         if params.showfig,
 %             figure(1);
 %             if params.nlayer == 1, 
 %                 display_network_nonsquare(reshape(CRBM.W,params.ws^3,params.numhid));
 %             elseif params.nlayer == 2, 
 %                 display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
 %             end
-            figure(2),
-            subplot(2,1,1), plot(error_history(1:t)); title('reconstruction error');
-            subplot(2,1,2), plot(sparsity_history(1:t)); title('sparsity');
-        end
+%             figure(2),
+%             subplot(2,1,1), plot(error_history(1:t)); title('reconstruction error');
+%             subplot(2,1,2), plot(sparsity_history(1:t)); title('sparsity');
+%         end
     end
     
     if strcmp(params.intype,'real'),
@@ -260,7 +260,7 @@ for t = 1:params.maxiter,
 end
 
 %% visualization
-% figure(1);
+figure(1);
 % if params.nlayer == 1,
 %     display_network_nonsquare(reshape(CRBM.W,params.ws^3*size(CRBM.W,4),params.numhid));
 % elseif params.nlayer == 2,
@@ -268,9 +268,10 @@ end
 % end
 % saveas(gcf, fname_png);
 % 
-figure(2),
+% figure(2),
 subplot(2,1,1), plot(error_history(1:t)); title('reconstruction error');
 subplot(2,1,2), plot(sparsity_history(1:t)); title('sparsity');
+savefig('results');
 
 CRBM = save_vars(fname_mat,CRBM,CDBN,params,error_history,sparsity_history, PAR.reconst_images);
 
