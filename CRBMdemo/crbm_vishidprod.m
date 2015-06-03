@@ -5,7 +5,14 @@ if ~exist('opt','var'), opt = 'pos'; end
 
 % transfer data to GPU
 if params.gpu ~= 0
-    PAR = gpuArray(PAR);
+    PAR.hidprobs = gpuArray(PAR.hidprobs);
+    if strcmp(opt, 'pos')
+        PAR.vis = gpuArray(PAR.vis);
+        PAR.posprods = gpuArray(PAR.posprods);
+    elseif strcmp(opt, 'neg')
+        PAR.negdata = gpuArray(PAR.negdata);
+        PAR.negprods = gpuArray(PAR.negprods);
+    end
 end
 
 selidx1 = size(PAR.hidprobs, 1):-1:1;
@@ -31,6 +38,13 @@ end
 % gather from GPU
 if params.gpu ~= 0
     PAR = gather(PAR);
+    if strcmp(opt, 'pos')
+        PAR.vis = gather(PAR.vis);
+        PAR.posprods = gather(PAR.posprods);
+    elseif strcmp(opt, 'neg')
+        PAR.negdata = gather(PAR.negdata);
+        PAR.negprods = gather(PAR.negprods);
+    end
 end
 
 return
