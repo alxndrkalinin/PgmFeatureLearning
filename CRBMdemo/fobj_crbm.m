@@ -48,6 +48,7 @@ PAR.reconst_images_neg = [PAR.reconst_images_neg PAR.negdata];
 
 % ey gradient
 PAR = crbm_vishidprod(PAR, params, 'neg');
+
 PAR.neghidact = squeeze(sum(sum(sum(PAR.hidprobs,1),2),3));
 PAR.negvisact = squeeze(sum(sum(sum(PAR.negdata,1),2),3));
 %%% ----------------------------- %%%

@@ -1,4 +1,4 @@
-function resp = compute_v2_response_sub(dataname, CRBM, params, spacing, nimg)
+function resp = compute_v2_response_sub(CRBM, params, spacing)
 %%
 if ~exist('spacing','var') || isempty(spacing), 
     spacing = params.spacing; 
@@ -9,7 +9,7 @@ load H.mat;
 
 ws_pad = 0;
 
-imsize = 17;
+% imsize = 17;
 D = 20;
 
 % for k = 1:length(idx),
@@ -17,7 +17,7 @@ for k = 1:length(H)
     im = H{k};
     
     %%% compute response
-    [~, ~, ~, HPc] = crbm_v2_response(params.gpu, im, CRBM, params.sigma, spacing, imsize, D, ws_pad);
+    [~, ~, ~, HPc] = crbm_v2_response(params.gpu, im, CRBM, params.sigma, spacing);
     
     BUF = 1;
     cur_resp = HPc;

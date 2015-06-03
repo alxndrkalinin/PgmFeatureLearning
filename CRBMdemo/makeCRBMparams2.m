@@ -22,7 +22,7 @@ ref_params.fname_save = [];
 ref_params.intype = 'binary';
 ref_params.sptype = 'approx';
 ref_params.dataset = '';
-ref_params.maxiter = 10;
+ref_params.maxiter = 7;
 % target sparsity level
 ref_params.eta_sparsity = 0;
 ref_params.eta_sigma = 0.01;

@@ -191,9 +191,9 @@ for t = 1:params.maxiter,
             end
             
             %%% update model parameters
-            PAR.Winc = momentum*PAR.Winc + epsilon*PAR.dW_total;
-            PAR.hbiasinc = momentum*PAR.hbiasinc + epsilon*PAR.dh_total;
-            PAR.vbiasinc = momentum*PAR.vbiasinc + epsilon*PAR.dv_total;
+            PAR.Winc = momentum * PAR.Winc + epsilon * PAR.dW_total;
+            PAR.hbiasinc = momentum * PAR.hbiasinc + epsilon * PAR.dh_total;
+            PAR.vbiasinc = momentum * PAR.vbiasinc + epsilon * PAR.dv_total;
             
             CRBM.W = CRBM.W + PAR.Winc;
             CRBM.hbias = CRBM.hbias + PAR.hbiasinc;
@@ -260,14 +260,14 @@ for t = 1:params.maxiter,
 end
 
 %% visualization
-figure(1);
-if params.nlayer == 1,
-    display_network_nonsquare(reshape(CRBM.W,params.ws^3*size(CRBM.W,4),params.numhid));
-elseif params.nlayer == 2,
+% figure(1);
+% if params.nlayer == 1,
+%     display_network_nonsquare(reshape(CRBM.W,params.ws^3*size(CRBM.W,4),params.numhid));
+% elseif params.nlayer == 2,
 %     display_crbm_v2_bases(CRBM.W, CDBN{1}, CDBN{1}.params.spacing);
-end
-saveas(gcf, fname_png);
-
+% end
+% saveas(gcf, fname_png);
+% 
 figure(2),
 subplot(2,1,1), plot(error_history(1:t)); title('reconstruction error');
 subplot(2,1,2), plot(sparsity_history(1:t)); title('sparsity');

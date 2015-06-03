@@ -14,6 +14,8 @@ ws_pad = 0;
 imsize = 41;
 D = 20;
 
+resp = cell(length(data));
+
 for k = 1:length(data),
     im = data{k};
     

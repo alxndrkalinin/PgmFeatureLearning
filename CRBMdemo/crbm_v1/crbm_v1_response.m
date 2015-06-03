@@ -1,4 +1,4 @@
-function [H HP Hc HPc imdata_v0] = crbm_v1_response(gpuMode, im, CRBM, sigma, spacing, imsize, D, ws_pad, noiselevel)
+function [H HP Hc HPc imdata_v0] = crbm_v1_response(gpuMode, im2, CRBM, sigma, spacing, imsize, D, ws_pad, noiselevel)
 %
 if ~exist('sigma','var') || isempty(sigma), 
     sigma = 1; 
@@ -7,9 +7,9 @@ if ~exist('noiselevel', 'var'),
     noiselevel = 0.5; 
 end
 
-im2 = im;
-im2 = im2-mean(mean(mean(im2)));
-im2 = im2/sqrt(mean(mean(mean(im2.^2))));
+% im2 = im;
+im2 = im2 - mean(mean(mean(im2)));
+im2 = im2 / sqrt(mean(mean(mean(im2.^2))));
 
 if ndims(CRBM.W) == 3,
     ws = sqrt(size(CRBM.W, 1));
@@ -20,10 +20,10 @@ elseif ndims(CRBM.W) == 5,
 end
 
 im2 = trim_image(im2, ws, spacing);
-imdata_v0 = im2/1.5; % we don't know what is going on here
+imdata_v0 = im2 / 1.5;
 
 %%% compute response
-[H HP Hc HPc] = crbm_inference_response(gpuMode, imdata_v0, CRBM, sigma, spacing);
+[H, HP, Hc, HPc] = crbm_inference_response(gpuMode, imdata_v0, CRBM, sigma, spacing);
 
 return
 

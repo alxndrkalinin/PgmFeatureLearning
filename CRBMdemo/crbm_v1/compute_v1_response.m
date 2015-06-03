@@ -8,8 +8,8 @@ if ~exist('nimg','var'),
     nimg = [];
 end
 
-CRBM.W = double(CRBM.W);
-CRBM.hbias = double(CRBM.hbias);
+CRBM.W = single(CRBM.W);
+CRBM.hbias = single(CRBM.hbias);
 
 switch class
     case 'Faces_easy',

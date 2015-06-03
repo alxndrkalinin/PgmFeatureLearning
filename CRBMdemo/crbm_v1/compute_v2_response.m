@@ -18,6 +18,7 @@ switch class
     case 'response_layer1'
 end
 
-resp = compute_v2_response_sub(class, CRBM, params, spacing, nimg);
+% resp = compute_v2_response_sub(class, CRBM, params, spacing, nimg);
+resp = compute_v2_response_sub(CRBM, params, spacing);
 
 return
