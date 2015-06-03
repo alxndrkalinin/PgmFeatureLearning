@@ -35,12 +35,13 @@ elseif strcmp(opt, 'neg'),
     end
 end
 
+clear CRBM.Wlr;
+
 PAR.hidprobs = 1 / (params.sigma^2) .* PAR.hidprobs;
 
 % gather data from GPU
 if params.gpu ~= 0
     PAR.hidprobs = gather(PAR.hidprobs);
-    CRBM.Wlr = gather(CRBM.Wlr);
     if strcmp(opt, 'pos')
         PAR.vis = gather(PAR.vis);
     elseif strcmp(opt, 'neg')

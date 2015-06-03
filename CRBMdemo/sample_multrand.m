@@ -25,7 +25,10 @@ for d = 1:spacing,
         end
     end
 end
-clear temp;
+
+poshidexp_size = size(poshidexp);
+
+clear temp poshidexp;
 
 % substract from max exponent to make values numerically more stable
 poshidprobs_mult = bsxfun(@minus, poshidprobs_mult, max(poshidprobs_mult, [], 1));
@@ -36,6 +39,7 @@ sumP = sum(poshidprobs_mult, 2);
 P = bsxfun(@rdivide, poshidprobs_mult, sumP);
 clear poshidprobs_mult sumP;
 
+% only P left in memory
 cumP = cumsum(P, 2);
 if params.gpu ~= 0
     unifrnd = rand(size(P,1), 1, 'single', 'gpuArray');
@@ -62,11 +66,11 @@ P = P';
 
 % transfer data to GPU and pre-allocate
 if params.gpu ~= 0
-    H = zeros(size(poshidexp), 'single', 'gpuArray');
-    HP = zeros(size(poshidexp), 'single', 'gpuArray');
+    H = zeros(poshidexp_size, 'single', 'gpuArray');
+    HP = zeros(poshidexp_size, 'single', 'gpuArray');
 else
-    H = zeros(size(poshidexp), 'single');
-    HP = zeros(size(poshidexp), 'single');
+    H = zeros(poshidexp_size, 'single');
+    HP = zeros(poshidexp_size, 'single');
 end
 
 % convert back to original sized matrix
@@ -95,10 +99,10 @@ if nargout >2
     Pc = sum(P(1:end-1,:));
     clear S P;
     
-    Hc = reshape(Sc, [size(poshidexp, 1) / spacing, size(poshidexp, 2) / spacing, ...
-        size(poshidexp, 3) / spacing, size(poshidexp, 4)]);
-    HPc = reshape(Pc, [size(poshidexp, 1) / spacing, size(poshidexp, 2) / spacing, ...
-        size(poshidexp, 3) / spacing, size(poshidexp, 4)]); 
+    Hc = reshape(Sc, [poshidexp_size(1) / spacing, poshidexp_size(2) / spacing, ...
+        poshidexp_size(3) / spacing, poshidexp_size(4)]);
+    HPc = reshape(Pc, [poshidexp_size(1) / spacing, poshidexp_size(2) / spacing, ...
+        poshidexp_size(3) / spacing, poshidexp_size(4)]);
     
     % gather data from GPU
     if params.gpu ~= 0

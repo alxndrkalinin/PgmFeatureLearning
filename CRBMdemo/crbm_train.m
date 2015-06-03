@@ -172,7 +172,7 @@ for t = 1:params.maxiter,
                     Xb = fliplr(Xb);
                 end
             end
-            PAR.vis = Xb;
+            PAR.vis = single(Xb);
             
             %%% compute gradient of log-likelihood (contrastive divergence)
             [CRBM, PAR] = fobj_crbm(CRBM, PAR, params, opt);
