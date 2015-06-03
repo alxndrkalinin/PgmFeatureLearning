@@ -8,10 +8,14 @@ if params.gpu ~= 0
     PAR.hidprobs = gpuArray(PAR.hidprobs);
     if strcmp(opt, 'pos')
         PAR.vis = gpuArray(PAR.vis);
-        PAR.posprods = gpuArray(PAR.posprods);
+        if isfield(PAR, 'posprods')
+            PAR.posprods = gpuArray(PAR.posprods);
+        end
     elseif strcmp(opt, 'neg')
         PAR.negdata = gpuArray(PAR.negdata);
-        PAR.negprods = gpuArray(PAR.negprods);
+        if isfield(PAR, 'negprods')
+            PAR.negprods = gpuArray(PAR.negprods);
+        end
     end
 end
 
