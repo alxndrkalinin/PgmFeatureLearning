@@ -9,11 +9,16 @@ if ~exist('opt','var'), opt = 'neg'; end
 % transfer data to GPU
 if params.gpu ~= 0
     CRBM.W = gpuArray(CRBM.W);
+    CRBM.vbiasmat = gpuArray(CRBM.vbiasmat);
     if strcmp(opt, 'recon')
-        PAR.reconst = gpuArray(PAR.reconst);
+%        if isfield(PAR, 'reconst')
+%	    PAR.reconst = gpuArray(PAR.reconst);
+%        end
         PAR.hidprobs = gpuArray(PAR.hidprobs);
     elseif strcmp(opt, 'neg')
-        PAR.negdata = gpuArray(PAR.negdata);
+%        if isfield(PAR, 'negdata')
+%            PAR.negdata = gpuArray(PAR.negdata);
+%        end
         PAR.hidstates = gpuArray(PAR.hidstates);
     end
 end
@@ -47,17 +52,19 @@ elseif strcmp(opt,'neg'),
     end
 end
 
+clear CRBM;
+
 % gather data from GPU
 if params.gpu ~= 0
-    CRBM.W = gather(CRBM.W);
-    if strcmp(opt, 'pos')
+    if strcmp(opt, 'recon')
         PAR.reconst = gather(PAR.reconst);
         PAR.hidprobs = gather(PAR.hidprobs);
-        PAR.vis = gather(PAR.vis);
     elseif strcmp(opt, 'neg')
         PAR.negdata = gather(PAR.negdata);
         PAR.hidstates = gather(PAR.hidstates);
     end
 end
+
+whos
 
 return

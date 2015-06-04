@@ -7,7 +7,7 @@ ref_params = [];
 ref_params.ws = 8;
 ref_params.batch_ws = [];
 % number of filters / hidden units
-ref_params.numhid = 300;
+ref_params.numhid = 200;
 ref_params.kcd = 1;
 ref_params.l1reg = 0;
 ref_params.l2reg = 1e-4;
