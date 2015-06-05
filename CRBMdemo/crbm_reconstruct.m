@@ -65,6 +65,4 @@ if params.gpu ~= 0
     end
 end
 
-whos
-
 return
