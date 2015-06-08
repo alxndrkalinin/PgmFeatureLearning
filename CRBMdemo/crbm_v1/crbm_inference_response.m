@@ -40,6 +40,6 @@ if gpuMode ~= 0
     hidprobs = gather(hidprobs);
 end
 
-[H, HP, Hc, HPc] = sample_multrand(hidprobs, [], spacing);
+[H, HP, Hc, HPc] = sample_multrand(hidprobs, struct('gpu', gpuMode), spacing);
 
 return;
