@@ -24,6 +24,16 @@ selidx2 = size(PAR.hidprobs, 2):-1:1;
 selidx3 = size(PAR.hidprobs, 3):-1:1;
 
 if strcmp(opt,'pos'),
+    
+    nX = max(size(PAR.vis, 1) - ...
+        size(PAR.hidprobs(selidx1, selidx2, selidx3, :), 1) + 1, 0);
+    nY = max(size(PAR.vis, 2) - ...
+        size(PAR.hidprobs(selidx1, selidx2, selidx3, :), 2) + 1, 0);
+    nZ = max(size(PAR.vis, 3) - ...
+        size(PAR.hidprobs(selidx1, selidx2, selidx3, :), 3) + 1, 0);
+
+    PAR.posprods = zeros(nX, nY, nZ, params.numvis, params.numhid);
+    
     %%% --- positive phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
@@ -31,6 +41,16 @@ if strcmp(opt,'pos'),
         end
     end
 elseif strcmp(opt,'neg'),
+    
+    nX = max(size(PAR.negdata, 1) - ...
+        size(PAR.hidprobs(selidx1, selidx2, selidx3, :), 1) + 1, 0);
+    nY = max(size(PAR.negdata, 2) - ...
+        size(PAR.hidprobs(selidx1, selidx2, selidx3, :), 2) + 1, 0);
+    nZ = max(size(PAR.negdata, 3) - ...
+        size(PAR.hidprobs(selidx1, selidx2, selidx3, :), 3) + 1, 0);
+
+    PAR.negprods = zeros(nX, nY, nZ, params.numvis, params.numhid);
+    
     %%% --- negative phase --- %%%
     for c = 1:params.numvis,
         for b = 1:params.numhid,
