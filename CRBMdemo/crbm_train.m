@@ -25,9 +25,13 @@ if params.gpu == 1
         g = gpuDevice(1);
         reset(g);
         params.gpu = g;
+        display('GPU mode is on');
     catch
         params.gpu = 0;
+        display('Failed to acquire GPU. Turning off.');
     end
+else
+    display('GPU mode is off');
 end
 
 % number of 3d images in stack (1)
