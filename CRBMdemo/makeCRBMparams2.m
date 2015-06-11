@@ -4,10 +4,10 @@ warning off all;
 % reference parameters
 ref_params = [];
 % filter size
-ref_params.ws = 5;
+ref_params.ws = 3;
 ref_params.batch_ws = [];
 % number of filters / hidden units
-ref_params.numhid = 150;
+ref_params.numhid = 100;
 ref_params.kcd = 1;
 ref_params.l1reg = 0;
 ref_params.l2reg = 1e-4;

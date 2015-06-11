@@ -4,7 +4,7 @@ warning off all;
 % reference parameters
 ref_params = [];
 % filter size
-ref_params.ws = 7;
+ref_params.ws = 5;
 ref_params.batch_ws = [];
 % number of filters / hidden units
 ref_params.numhid = 50;

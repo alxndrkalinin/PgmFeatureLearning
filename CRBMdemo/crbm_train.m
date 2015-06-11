@@ -40,8 +40,10 @@ params.numvis = size(X{1},4);
 if isempty(params.batch_ws),
     params.batch_ws = inf;
     for i = 1:length(X),
+%         params.batch_ws = min(params.batch_ws, min([size(X{i},1), ...
+%             size(X{i},2), size(X{i},3)]));
         params.batch_ws = min(params.batch_ws, min([size(X{i},1), ...
-            size(X{i},2), size(X{i},3)]));
+            size(X{i},2)]));
     end
 end
 params.batch_ws = params.batch_ws - rem(params.batch_ws - ...
@@ -129,7 +131,8 @@ PAR.runningavg_prob = [];
 opt.visrow = params.batch_ws;
 opt.viscol = params.batch_ws;
 % third dimension
-opt.visdepth = params.batch_ws;
+% opt.visdepth = params.batch_ws;
+opt.visdepth = size(X{1}, 3); % depth
 
 opt.hidrow = opt.visrow - params.ws + 1;
 opt.hidcol = opt.viscol - params.ws + 1;
@@ -167,7 +170,8 @@ for t = 1:params.maxiter,
     for b = 1:(params.batchsize/params.batchperiter),
         for bi = 1:params.batchperiter,
             %%% prepare large image for the current batch of training
-            Xb = trim_image_square(X{randidx(b)},params.ws,params.batch_ws,params.spacing);
+%             Xb = trim_image_square(X{randidx(b)},params.ws,params.batch_ws,params.spacing);
+            Xb = trim_image_for_spacing(X{randidx(b)}, params.ws, params.spacing);
             if params.optmeannorm,
                 % mean normalization
                 Xb = Xb - mean(Xb(:));
@@ -176,7 +180,9 @@ for t = 1:params.maxiter,
                     Xb = fliplr(Xb);
                 end
             end
+            
             PAR.vis = single(Xb);
+            clear Xb;
             
             %%% compute gradient of log-likelihood (contrastive divergence)
             [CRBM, PAR] = fobj_crbm(CRBM, PAR, params, opt);
