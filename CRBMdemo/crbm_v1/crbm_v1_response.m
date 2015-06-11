@@ -1,4 +1,4 @@
-function [H HP Hc HPc imdata_v0] = crbm_v1_response(gpuMode, im2, CRBM, sigma, spacing, imsize, D, ws_pad, noiselevel)
+function [H, HP, Hc, HPc, imdata_v0] = crbm_v1_response(gpuMode, im2, CRBM, sigma, spacing)
 %
 if ~exist('sigma','var') || isempty(sigma), 
     sigma = 1; 

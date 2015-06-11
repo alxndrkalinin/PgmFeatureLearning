@@ -1,4 +1,4 @@
-function resp = compute_v2_response(class, CRBM, params, spacing, nimg)
+function resp = compute_v2_response(class, CRBM, params, spacing)
 
 if ~exist('spacing','var'),
     spacing = params.spacing;
@@ -8,8 +8,8 @@ if ~exist('nimg','var'),
     nimg = [];
 end
 
-CRBM.W = double(CRBM.W);
-CRBM.hbias = double(CRBM.hbias);
+CRBM.W = single(CRBM.W);
+CRBM.hbias = single(CRBM.hbias);
 
 switch class
     case 'Faces_easy',
@@ -18,7 +18,6 @@ switch class
     case 'response_layer1'
 end
 
-% resp = compute_v2_response_sub(class, CRBM, params, spacing, nimg);
 resp = compute_v2_response_sub(CRBM, params, spacing);
 
 return

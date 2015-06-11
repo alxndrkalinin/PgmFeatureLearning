@@ -23,16 +23,16 @@ end
 
 sizeDiff = mod(size(im2, 1) - ws + 1, spacing);
 im3 = zeros(size(im2,1) - sizeDiff, size(im2,2) - sizeDiff, ...
-    size(im2,3) - sizeDiff, size(im2, 4));
+    size(im2,3) - mod(size(im2, 1) - ws + 1, spacing), size(im2, 4));
 
 for k = 1:size(im2, 4)
    im3(:,:,:,k) = trim_image(im2(:,:,:,k), ws, spacing);
 end
 imdata_v0 = im3 / 1.5;
-clear im2;
+clear im2 im3;
 
 %%% compute response
-[H, HP, Hc, HPc] = crbm_inference_response(imdata_v0, CRBM, sigma, spacing, gpuMode);
+[H, HP, Hc, HPc] = crbm_inference_response(gpuMode, imdata_v0, CRBM, sigma, spacing);
 
 return
 

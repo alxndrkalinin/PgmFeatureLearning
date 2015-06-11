@@ -5,14 +5,13 @@ if ~exist('spacing','var') || isempty(spacing),
 end
 
 %%% load images
-load data/cells/class_1_59_size100.mat;
-load data/cells/class_2_59_size100.mat;
-data = [class1_data100 class2_data100];
+% load data/cells/class_1_59_size100.mat;
+% load data/cells/class_2_59_size100.mat;
+% data = [class1_data100 class2_data100];
 
-ws_pad = 0;
-
-imsize = 41;
-D = 20;
+load data/3DHela/Gpp.mat;
+load data/3DHela/Tub.mat;
+data = [Gpp(1:40) Tub(1:40)];
 
 resp = cell(length(data));
 
@@ -20,7 +19,7 @@ for k = 1:length(data),
     im = data{k};
     
     %%% compute response
-    [~, ~, ~, HPc] = crbm_v1_response(params.gpu, im, CRBM, params.sigma, spacing, imsize, D, ws_pad);
+    [~, ~, ~, HPc] = crbm_v1_response(params.gpu, im, CRBM, params.sigma, spacing);
     
     BUF = 1;
     cur_resp = HPc;

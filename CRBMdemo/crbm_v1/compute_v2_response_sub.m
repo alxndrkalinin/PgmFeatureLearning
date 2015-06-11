@@ -7,11 +7,6 @@ end
 %%% load images
 load H.mat;
 
-ws_pad = 0;
-
-% imsize = 17;
-D = 20;
-
 % for k = 1:length(idx),
 for k = 1:length(H)
     im = H{k};
