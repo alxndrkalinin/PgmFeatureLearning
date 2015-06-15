@@ -5,7 +5,9 @@ function crop_resize_3dhela(path)
     XY_DIM = 1024; % default size of images in X and Y
     Z_DIM = 30; % upper limit for slices in Z
     cropSize = 800; % output size of the cropping in X and Y
-    finalSize = 100; % desired output dimensions
+    finalSizeXY = 300; % desired output dimensions in X and Y
+    finalSizeZ = 10; %desired output in Z - 2
+    
     [~, ~, Z] = meshgrid(1:XY_DIM, 1:XY_DIM, 1:Z_DIM);
     Z = uint8(Z);
 
@@ -66,16 +68,21 @@ function crop_resize_3dhela(path)
         
         % resizing an image
         [cX, cY, cZ]= ...
-           ndgrid(linspace(1, size(img, 1), finalSize),...
-                  linspace(1, size(img, 2), finalSize),...
-                  linspace(1, size(img, 3), finalSize));
-        img = interp3(single(img), cX, cY, cZ, 'cubic');
+           ndgrid(linspace(1, size(img, 1), finalSizeXY), ...
+                  linspace(1, size(img, 2), finalSizeXY), ...
+                  linspace(1, size(img, 3), finalSizeXY));
+        img = interp3(im2single(img), cX, cY, cZ, 'cubic');
+        
+        img = img(:, :, ...
+            floor(finalSizeXY / 2) - floor(finalSizeZ / 2) : ...
+            ceil(finalSizeXY / 2) + ceil(finalSizeZ / 2) + 1);
         
         data(cellIdx) = {img};
         
         figure; imshow3D(img);
     end
+    
     output = struct(path, {data});
-     % save to corresponding file by the name of the directory
+    % save to corresponding file by the name of the directory
     save(strcat(path, '.mat'), '-struct', 'output');
 end
