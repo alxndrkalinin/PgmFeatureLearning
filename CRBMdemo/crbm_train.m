@@ -92,9 +92,10 @@ if params.optmminit,
 end
 
 if ~params.optmminit,
-%     CRBM.W = 0.01*randn(params.ws, params.ws, params.numvis, params.numhid);
-    CRBM.W = 0.01*randn(params.ws, params.ws, params.ws, ...
-        params.numvis, params.numhid, 'single');
+    CRBM.W = randn(params.ws, params.ws, size(X{i}, 3), ...
+        params.numvis, params.numhid, 'single') * ...
+        sqrt(2 / (params.ws * params.ws * size(X{i}, 3) * ...
+        params.numvis * params.numhid));
     
     CRBM.hbias = zeros(params.numhid, 1, 'single');
     CRBM.vbias = zeros(params.numvis, 1, 'single'); % = 0
