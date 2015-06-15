@@ -181,7 +181,7 @@ for t = 1:params.maxiter,
                 end
             end
             
-            PAR.vis = single(Xb);
+            PAR.vis = Xb;
             clear Xb;
             
             %%% compute gradient of log-likelihood (contrastive divergence)
