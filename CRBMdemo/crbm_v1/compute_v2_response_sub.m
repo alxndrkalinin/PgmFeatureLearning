@@ -4,8 +4,12 @@ if ~exist('spacing','var') || isempty(spacing),
     spacing = params.spacing; 
 end
 
-%%% load images
-load H.mat;
+%%% load prev layer response
+load H.mat
+%load H_class.mat;
+%H = H_class;
+
+resp = cell(length(H));
 
 % for k = 1:length(idx),
 for k = 1:length(H)
@@ -24,7 +28,7 @@ for k = 1:length(H)
     cur_resp(:, :,end-BUF+1:end,:)=0;
     
     %%% store in cell
-    resp = cur_resp;
+    resp{k} = cur_resp;
 end
 
 fprintf('\n');
