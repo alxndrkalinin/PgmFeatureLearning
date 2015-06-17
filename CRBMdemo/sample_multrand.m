@@ -2,18 +2,10 @@ function [H HP Hc HPc] = sample_multrand(poshidexp, params, spacing)
 if ~exist('spacing','var'),
     spacing = params.spacing;
 end
-
-% transfer data to GPU and pre-allocate
-if params.gpu ~= 0
-    poshidexp = gpuArray(poshidexp);
-    poshidprobs_mult = zeros(spacing^3 + 1, size(poshidexp, 1) * ...
-        size(poshidexp, 2) * size(poshidexp, 3) * ...
-        size(poshidexp, 4) / spacing^3, 'single', 'gpuArray');
-else
-    poshidprobs_mult = zeros(spacing^3 + 1, size(poshidexp, 1) * ...
+    
+poshidprobs_mult = zeros(spacing^3 + 1, size(poshidexp, 1) * ...
     size(poshidexp, 2) * size(poshidexp, 3) * ...
     size(poshidexp, 4) / spacing^3, 'single');
-end
 
 poshidprobs_mult(end,:) = 0;
 
@@ -27,7 +19,6 @@ for d = 1:spacing,
 end
 
 poshidexp_size = size(poshidexp);
-
 clear temp poshidexp;
 
 % substract from max exponent to make values numerically more stable
@@ -41,38 +32,23 @@ clear poshidprobs_mult sumP;
 
 % only P left in memory
 cumP = cumsum(P, 2);
-if params.gpu ~= 0
-    unifrnd = rand(size(P,1), 1, 'single', 'gpuArray');
-else
-    unifrnd = rand(size(P,1), 1, 'single');
-end
+unifrnd = rand(size(P,1), 1, 'single');
 tmp = bsxfun(@gt, cumP, unifrnd);
 clear cumP unifrnd;
 
 Sindx = diff(tmp, 1, 2);
 clear tmp;
 
-if params.gpu ~= 0
-    S = zeros(size(P), 'single', 'gpuArray');
-else
-    S = zeros(size(P), 'single');
-end
+S = zeros(size(P), 'single');
 S(:,1) = 1 - sum(Sindx, 2);
 S(:,2:end) = Sindx;
 clear Sindx;
-
 S = S';
 P = P';
 
-% transfer data to GPU and pre-allocate
-if params.gpu ~= 0
-    H = zeros(poshidexp_size, 'single', 'gpuArray');
-    HP = zeros(poshidexp_size, 'single', 'gpuArray');
-else
-    H = zeros(poshidexp_size, 'single');
-    HP = zeros(poshidexp_size, 'single');
-end
-
+% pre-allocate
+H = zeros(poshidexp_size, 'single');
+HP = zeros(poshidexp_size, 'single');
 % convert back to original sized matrix
 for d = 1:spacing,
     for c = 1:spacing,
@@ -88,13 +64,7 @@ for d = 1:spacing,
     end
 end
 
-% gather data from GPU
-if params.gpu ~= 0
-    H = gather(H);
-    HP = gather(HP);
-end
-
-if nargout >2
+if nargout > 2
     Sc = sum(S(1:end-1,:));
     Pc = sum(P(1:end-1,:));
     clear S P;
@@ -103,19 +73,6 @@ if nargout >2
         poshidexp_size(3) / spacing, poshidexp_size(4)]);
     HPc = reshape(Pc, [poshidexp_size(1) / spacing, poshidexp_size(2) / spacing, ...
         poshidexp_size(3) / spacing, poshidexp_size(4)]);
-    
-    % gather data from GPU
-    if params.gpu ~= 0
-        if nargout >2
-            Hc = gather(Hc);
-            HPc = gather(HPc);
-        end
-    end
 end
 
-clear poshidexp;
-
 return
-
-
-
